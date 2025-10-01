@@ -115,6 +115,12 @@ static inline void initialize_sanitize_handlers()
 	sanitize_handlers[IORING_OP_FTRUNCATE] = sanitize_sqe_addr;
 	sanitize_handlers[IORING_OP_BIND] = sanitize_sqe_addr;
 	sanitize_handlers[IORING_OP_LISTEN] = sanitize_sqe_addr;
+	sanitize_handlers[IORING_OP_RECV_ZC] = sanitize_sqe_addr;
+	sanitize_handlers[IORING_OP_EPOLL_WAIT] = sanitize_sqe_addr;
+	sanitize_handlers[IORING_OP_READV_FIXED] = sanitize_sqe_addr;
+	sanitize_handlers[IORING_OP_WRITEV_FIXED] = sanitize_sqe_addr;
+	sanitize_handlers[IORING_OP_PIPE] = sanitize_sqe_addr;
+	_Static_assert(IORING_OP_PIPE + 1 == IORING_OP_LAST, "Need an implementation for all IORING_OP_* codes");
 	sanitize_handlers_initialized = true;
 }
 
@@ -122,17 +128,10 @@ void liburing_sanitize_ring(struct io_uring *ring)
 {
 	struct io_uring_sq *sq = &ring->sq;
 	struct io_uring_sqe *sqe;
-	unsigned int head;
-	int shift = 0;
+	unsigned head = io_uring_load_sq_head(ring);
+	unsigned shift = io_uring_sqe_shift(ring);
 
 	initialize_sanitize_handlers();
-
-	if (ring->flags & IORING_SETUP_SQE128)
-		shift = 1;
-	if (!(ring->flags & IORING_SETUP_SQPOLL))
-		head = *sq->khead;
-	else
-		head = io_uring_smp_load_acquire(sq->khead);
 
 	while (head != sq->sqe_tail) {
 		sqe = &sq->sqes[(head & sq->ring_mask) << shift];

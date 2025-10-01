@@ -28,9 +28,11 @@ example_srcs := \
 	napi-busy-poll-client.c \
 	napi-busy-poll-server.c \
 	poll-bench.c \
+	reg-wait.c \
 	send-zerocopy.c \
 	rsrc-update-bench.c \
 	proxy.c \
+	zcrx.c \
 	kdigest.c
 
 all_targets :=

@@ -74,9 +74,7 @@ liburing_ffi_sobjs := ffi.os
 %.ol: %.c
 	$(QUIET_CC)$(CC) $(CPPFLAGS) $(L_CFLAGS) -c -o $@ $<
 
-# Include compiler generated dependency files.
--include $(liburing_objs:%=%.d)
--include $(liburing_sobjs:%=%.d)
+-include $(liburing_objs:%=%.d) $(liburing_sobjs:%=%.d) $(liburing_ffi_objs:%=%.d) $(liburing_ffi_sobjs:%=%.d)
 
 AR ?= ar
 RANLIB ?= ranlib
@@ -101,8 +99,8 @@ install: $(all_targets)
 	install -D -m 644 include/liburing.h $(includedir)/liburing.h
 	install -D -m 644 include/liburing/compat.h $(includedir)/liburing/compat.h
 	install -D -m 644 include/liburing/barrier.h $(includedir)/liburing/barrier.h
-	install -D -m 644 include/liburing/sanitize.h $(includedir)/liburing/sanitize.h
 	install -D -m 644 include/liburing/io_uring_version.h $(includedir)/liburing/io_uring_version.h
+	install -D -m 644 include/liburing/io_uring/query.h $(includedir)/liburing/io_uring/query.h
 	install -D -m 644 liburing.a $(libdevdir)/liburing.a
 	install -D -m 644 liburing-ffi.a $(libdevdir)/liburing-ffi.a
 ifeq ($(ENABLE_SHARED),1)
@@ -121,6 +119,7 @@ uninstall:
 	@rm -f $(includedir)/liburing/barrier.h
 	@rm -f $(includedir)/liburing/sanitize.h
 	@rm -f $(includedir)/liburing/io_uring_version.h
+	@rm -f $(includedir)/liburing/io_uring/query.h
 	@rm -f $(libdevdir)/liburing.a
 	@rm -f $(libdevdir)/liburing-ffi.a
 ifeq ($(ENABLE_SHARED),1)
